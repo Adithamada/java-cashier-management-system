@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.GridLayout;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 public class CartManagementPanel extends JPanel{
@@ -30,7 +31,9 @@ public class CartManagementPanel extends JPanel{
 		
 		//PANEL TOP AkA CART LIST
 		panelTop = new JPanel();
+		panelTop.setBorder(new EmptyBorder(15,10,15,15));
 		panelTop.setBounds(0,0,600, 350);
+		panelTop.setLayout(new GridLayout(1,1));
 		String[] columnName = {"No", "Id", "Name", "Price", "Amount", "Total Price"};
 		tableModel = new DefaultTableModel(columnName,0){
             @Override
@@ -38,11 +41,13 @@ public class CartManagementPanel extends JPanel{
                 return false;
             }
         };
+        tableModel.addRow(columnName);
 		cartTable = new JTable(tableModel);
 		panelTop.add(cartTable);
 		
 		//PANEL CENTER AkA FIELD
 		panelCenter = new JPanel();
+		panelCenter.setBorder(new EmptyBorder(15,10,15,15));
 		panelCenter.setBounds(0,350,600,150);
 		panelCenter.setLayout(new GridLayout(2,2,5,5));
 		labelId = new JLabel("Product Id : ");
@@ -56,6 +61,7 @@ public class CartManagementPanel extends JPanel{
 		
 		//PANEL BOTTOM AkA BUTTON
 		panelBottom = new JPanel();
+		panelBottom.setBorder(new EmptyBorder(15,10,15,15));
 		panelBottom.setBounds(0,500,600,250);
 		panelBottom.setLayout(new GridLayout(4,1,5,5));
 		addCartBtn = new JButton("Add To Cart");
