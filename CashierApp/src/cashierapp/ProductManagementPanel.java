@@ -94,7 +94,7 @@ public class ProductManagementPanel extends JPanel implements ActionListener{
 		addBtn =new JButton("Add Product");
 		updateBtn =new JButton("Update Product");
 		deleteBtn =new JButton("Delete Product");
-		resetBtn =new JButton("Reset Product");
+		resetBtn =new JButton("Reset Field");
 		bottomPanel.add(addBtn);
 		bottomPanel.add(updateBtn);
 		bottomPanel.add(deleteBtn);
