@@ -3,6 +3,9 @@ package cashierapp;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.*;
+import org.mindrot.jbcrypt.BCrypt;
+
 
 public class LoginFrame extends JFrame implements ActionListener{
 
@@ -11,21 +14,27 @@ public class LoginFrame extends JFrame implements ActionListener{
 	private JLabel labelPassword;
 	
 	private JTextField fieldUsername;
-	private JTextField fieldPassword;
+	private JPasswordField fieldPassword;
 	
 	private JButton buttonLogin;
 	private JButton buttonReset;
 	
 	private Font titleFont;
+	static Cashier cashier= new Cashier();
+	
+	static Scanner input= new Scanner(System.in);
+	
+	private boolean isLogin;
 	
 	public LoginFrame() {
+		isLogin = false;
 		titleFont = new Font("Mono",Font.BOLD,25);
 		labelTitle = new JLabel("LOGIN");
 		labelUsername = new JLabel("Username : ");
 		labelPassword = new JLabel("Password : ");
 		
 		fieldUsername = new JTextField();
-		fieldPassword = new JTextField();		
+		fieldPassword = new JPasswordField();		
 		
 		buttonLogin = new JButton("LOGIN");
 		buttonReset = new JButton("RESET");
@@ -54,17 +63,48 @@ public class LoginFrame extends JFrame implements ActionListener{
 		add(fieldPassword);
 		add(buttonLogin);
 		add(buttonReset);
+		
+		buttonLogin.addActionListener(this);
+		buttonReset.addActionListener(this);
+		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(true);
 	}
 	
 	public static void main(String[] args) {
+		//registration();
 		new LoginFrame();
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if(e.getSource()==buttonLogin) {
+			String userName = fieldUsername.getText();
+			String userPass = String.valueOf(fieldPassword.getPassword());
+			
+			isLogin =cashier.validateLogin(userName, userPass);
+			
+			if(!isLogin) {
+				JOptionPane.showMessageDialog(null,"Login Failed, Please check username and password");
+			}else {
+				JOptionPane.showMessageDialog(null,"Login Success, Welcome " + userName);
+				new CashierFrame();
+				dispose();
+			}
+		}
+	}
+	
+	public static void registration() {
+		String userName;
+		String password;
+		System.out.println("Input UserName : ");
+		userName = input.nextLine();
+		System.out.println("Input Password : ");
+		password = input.nextLine();
+		String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+		cashier.registration(userName, hashedPassword);
 		
+		System.out.println("Welcome " + userName);
 	}
 	
 }

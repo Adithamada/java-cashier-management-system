@@ -3,6 +3,7 @@ package cashierapp;
 import cashierapp.data.*;
 import java.sql.*;
 import java.time.LocalDateTime;
+import org.mindrot.jbcrypt.*;
 
 public class Cashier {
 	
@@ -136,7 +137,50 @@ public class Cashier {
        } catch (SQLException e) {
            e.printStackTrace();
        }
-   }
+	}
 	
+	public boolean validateLogin(String userName, String userPass) {
+		String checkUser = "SELECT password FROM user WHERE username = ?";
+		try{
+			Connection conn = (Connection) DatabaseConnection.connect();
+			PreparedStatement stmt = conn.prepareStatement(checkUser);
+			
+			stmt.setString(1, userName);
+			
+			try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String hashedPassword = rs.getString("password");
+                    // Check if the hashed password matches
+                    if (BCrypt.checkpw(userPass, hashedPassword)) {
+                        return true;
+                    }
+                }
+            }
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public void registration(String userName, String password) {
+		String registerQuery = "INSERT INTO user (username,password) VALUES (?,?)";
+		try(Connection conn = (Connection) DatabaseConnection.connect();
+			PreparedStatement stmt = conn.prepareStatement(registerQuery)){
+			
+			stmt.setString(1,userName);
+			stmt.setString(2, password);
+			
+			int rowsAffect = stmt.executeUpdate();
+			
+			if(rowsAffect > 0) {
+				System.out.println("Registration success!");
+			}else {
+				System.out.println("Registration failed!");
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 }
