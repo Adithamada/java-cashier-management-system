@@ -15,6 +15,7 @@ public class CashierFrame extends JFrame{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new GridLayout(1,2));
 		setResizable(false);
+		setTitle("Cashier");
 		
 		add(leftPanel);
 		add(rightPanel);

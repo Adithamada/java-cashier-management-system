@@ -35,6 +35,7 @@ public class CheckOutFrame extends JFrame implements ActionListener {
         setLayout(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
+        setTitle("Checkout");
 
         topPanel = new JPanel();
         topPanel.setBounds(0, 0, 500, 500);
