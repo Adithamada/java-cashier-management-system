@@ -2,6 +2,7 @@ package cashierapp;
 
 import cashierapp.data.*;
 import java.sql.*;
+import java.time.LocalDateTime;
 
 public class Cashier {
 	
@@ -87,6 +88,62 @@ public class Cashier {
 			System.out.println("Product not removed from cart");
 		}
 	}
+	
+	public int newTransaction(Connection conn,double totalPrice)throws SQLException {
+		 String insertTransaction = "INSERT INTO `transaction` (date,totalPrice) VALUES (?, ?)";
+	        try (PreparedStatement stmt = conn.prepareStatement(insertTransaction, PreparedStatement.RETURN_GENERATED_KEYS)) {
+	            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+	            stmt.setDouble(2, totalPrice);
+	            stmt.executeUpdate();
+
+	            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+	                if (generatedKeys.next()) {
+	                    return generatedKeys.getInt(1); // Return the generated transaction ID
+	                } else {
+	                    throw new SQLException("Creating transaction failed, no ID obtained.");
+	                }
+	            }
+           }
+	}
+	private void newTransactionDetail(Connection conn, int transactionId, int productId, int quantity,double price) throws SQLException {
+       String insertDetail = "INSERT INTO transactiondetail (transaction_id, product_id, quantity,price) VALUES (?,?, ?, ?)";
+       try (PreparedStatement stmt = conn.prepareStatement(insertDetail)) {
+           stmt.setInt(1, transactionId);
+           stmt.setInt(2, productId);
+           stmt.setInt(3, quantity);
+           stmt.setDouble(4, price);
+           stmt.executeUpdate();
+       }
+   }
+	
+	public void checkOutTransaction(Cart cart) {
+       try (Connection conn = DatabaseConnection.connect()) {
+           if (conn != null) {
+               conn.setAutoCommit(false); // Start transaction
+
+               int transactionId = newTransaction(conn, cart.calculateTotal());
+
+               System.out.println("|Id |Nama |Price |Stock |Amount |Total Price |");
+               for (Product product : cart.productList()) {
+               	System.out.println(String.format("|%d |%s |%.2f |%d |%d |%.2f |", product.getId(),product.getName(),product.getPrice(),product.getStock(),
+               			product.getPurchaseAmount(),product.getPurchaseAmount() * product.getPrice()));
+               }
+               System.out.println("+===========================+");
+               System.out.println("Total price : " + cart.calculateTotal());
+               
+               for (Product product : cart.productList()) {
+                   newTransactionDetail(conn, transactionId, product.getId(), product.getPurchaseAmount(),
+                   		product.getPurchaseAmount() * product.getPrice());
+               }
+
+               conn.commit(); // Commit transaction
+               System.out.println("Transaction completed.");
+               cart.clearCart();
+           }
+       } catch (SQLException e) {
+           e.printStackTrace();
+       }
+   }
 	
 	
 }

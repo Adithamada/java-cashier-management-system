@@ -137,6 +137,9 @@ public class CartManagementPanel extends JPanel implements ActionListener {
         }else if(e.getSource()==resetBtn) {
         	fieldId.setText("");
         	fieldAmount.setText("");
+        }else if(e.getSource()==checkoutBtn) {
+        	new CheckOutFrame();
+        	tableList();
         }
     }
 }
