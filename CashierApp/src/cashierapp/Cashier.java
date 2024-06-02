@@ -105,35 +105,28 @@ public class Cashier {
 	            }
            }
 	}
-	private void newTransactionDetail(Connection conn, int transactionId, int productId, int quantity,double price) throws SQLException {
-       String insertDetail = "INSERT INTO transactiondetail (transaction_id, product_id, quantity,price) VALUES (?,?, ?, ?)";
+	private void newTransactionDetail(Connection conn, int transactionId, int productId, int quantity,double price,double payment) throws SQLException {
+       String insertDetail = "INSERT INTO transactiondetail (transaction_id, product_id, quantity,price,payment) VALUES (?,?,?,?,?)";
        try (PreparedStatement stmt = conn.prepareStatement(insertDetail)) {
            stmt.setInt(1, transactionId);
            stmt.setInt(2, productId);
            stmt.setInt(3, quantity);
            stmt.setDouble(4, price);
+           stmt.setDouble(5, payment);
            stmt.executeUpdate();
        }
    }
 	
-	public void checkOutTransaction(Cart cart) {
+	public void checkOutTransaction(Cart cart,double payment) {
        try (Connection conn = DatabaseConnection.connect()) {
            if (conn != null) {
                conn.setAutoCommit(false); // Start transaction
 
                int transactionId = newTransaction(conn, cart.calculateTotal());
-
-               System.out.println("|Id |Nama |Price |Stock |Amount |Total Price |");
-               for (Product product : cart.productList()) {
-               	System.out.println(String.format("|%d |%s |%.2f |%d |%d |%.2f |", product.getId(),product.getName(),product.getPrice(),product.getStock(),
-               			product.getPurchaseAmount(),product.getPurchaseAmount() * product.getPrice()));
-               }
-               System.out.println("+===========================+");
-               System.out.println("Total price : " + cart.calculateTotal());
                
                for (Product product : cart.productList()) {
                    newTransactionDetail(conn, transactionId, product.getId(), product.getPurchaseAmount(),
-                   		product.getPurchaseAmount() * product.getPrice());
+                   		product.getPurchaseAmount() * product.getPrice(),payment);
                }
 
                conn.commit(); // Commit transaction

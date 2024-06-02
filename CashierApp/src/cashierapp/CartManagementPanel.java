@@ -24,17 +24,21 @@ public class CartManagementPanel extends JPanel implements ActionListener {
     private JLabel labelId;
     private JLabel labelAmount;
     private JLabel labelTotalPrice;
+    private JLabel labelPayment;
 
     private JTextField fieldId;
+    private JTextField fieldPayment;
     private JTextField fieldAmount;
 
     private JButton addCartBtn;
     private JButton removeCartBtn;
     private JButton resetBtn;
     private JButton checkoutBtn;
-    private Cart cart;
+    
+    public Cart cart;
     private Cashier cashier;
     private String[] columnName = {"No", "Id", "Name", "Price", "Amount", "Total Price"};
+    public double payment;
 
     public CartManagementPanel() {
 
@@ -64,15 +68,19 @@ public class CartManagementPanel extends JPanel implements ActionListener {
         // PANEL CENTER AKA FIELD
         panelCenter = new JPanel();
         panelCenter.setBorder(new EmptyBorder(15, 10, 15, 15));
-        panelCenter.setLayout(new GridLayout(2, 2, 5, 5));
-        labelId = new JLabel("Product Id: ");
-        labelAmount = new JLabel("Purchase Amount: ");
+        panelCenter.setLayout(new GridLayout(3, 2, 4, 4));
+        labelId = new JLabel("Product Id : ");
+        labelPayment = new JLabel("Payment cash : ");
+        labelAmount = new JLabel("Purchase Amount : ");
         fieldId = new JTextField();
         fieldAmount = new JTextField();
+        fieldPayment = new JTextField();
         panelCenter.add(labelId);
         panelCenter.add(fieldId);
         panelCenter.add(labelAmount);
         panelCenter.add(fieldAmount);
+        panelCenter.add(labelPayment);
+        panelCenter.add(fieldPayment);
 
         // PANEL BOTTOM AKA BUTTON
         panelBottom = new JPanel();
@@ -87,6 +95,14 @@ public class CartManagementPanel extends JPanel implements ActionListener {
         panelBottom.add(resetBtn);
         panelBottom.add(checkoutBtn);
 
+        cartTable.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting() && cartTable.getSelectedRow() != -1) {
+                int selectedRow = cartTable.getSelectedRow();
+                fieldId.setText(tableModel.getValueAt(selectedRow, 1).toString());
+                fieldAmount.setText(tableModel.getValueAt(selectedRow, 4).toString());
+            }
+        });
+        
         addCartBtn.addActionListener(this);
         removeCartBtn.addActionListener(this);
         resetBtn.addActionListener(this);
@@ -114,6 +130,11 @@ public class CartManagementPanel extends JPanel implements ActionListener {
         labelTotalPrice.setText("Total Price: $" + cart.calculateTotal());
     }
 
+    public void clearCartAndRefreshTable() {
+        cart.clearCart();
+        tableList(); 
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == addCartBtn) {
@@ -121,25 +142,46 @@ public class CartManagementPanel extends JPanel implements ActionListener {
             int amount = Integer.parseInt(fieldAmount.getText());
             if (id != 0 || amount != 0) {
                 cashier.addProductToCart(cart, id, amount);
-                JOptionPane.showMessageDialog(panelCenter, "Product added to Cart");
+                JOptionPane.showMessageDialog(panelTop, "Product added to Cart");
                 tableList(); // Update the table after adding a product
             } else {
-                JOptionPane.showMessageDialog(panelCenter, "Product failed to be added to Cart");
+                JOptionPane.showMessageDialog(panelTop, "Product failed to be added to Cart");
             }
         }else if(e.getSource()==removeCartBtn) {
             int id = Integer.parseInt(fieldId.getText());
             if(id != 0) {
-            	cashier.removeProductFromCart(cart, id);
-                JOptionPane.showMessageDialog(panelCenter, "Product removed from Cart");
+            	int confirm = JOptionPane.showConfirmDialog(panelTop, "Are you sure to remove the product?");
+            	if(confirm == JOptionPane.YES_OPTION) {            		
+            		cashier.removeProductFromCart(cart, id);
+            		JOptionPane.showMessageDialog(panelTop, "Product removed from Cart");
+            		tableList(); 
+            	}
             }else {
-                JOptionPane.showMessageDialog(panelCenter, "Product fail to Removed");
+                JOptionPane.showMessageDialog(panelTop, "Product fail to Removed");
             }
         }else if(e.getSource()==resetBtn) {
         	fieldId.setText("");
         	fieldAmount.setText("");
         }else if(e.getSource()==checkoutBtn) {
-        	new CheckOutFrame();
-        	tableList();
+        	String paymentText = fieldPayment.getText();
+            if (paymentText.isEmpty()) {
+                JOptionPane.showMessageDialog(panelTop, "Payment field cannot be empty.");
+            } else {
+                try {
+                    double payment = Double.parseDouble(paymentText);
+                    int confirm = JOptionPane.showConfirmDialog(panelTop, "Are you sure you want to checkout?");
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        if (payment >= cart.calculateTotal()) {
+                            new CheckOutFrame(cart, payment,this);
+                            cashier.checkOutTransaction(cart, payment);
+                        } else {
+                            JOptionPane.showMessageDialog(panelTop, "Payment is less!");
+                        }
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(panelTop, "Invalid payment amount.");
+                }
+            }
         }
     }
 }
