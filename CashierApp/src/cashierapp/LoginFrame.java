@@ -91,6 +91,9 @@ public class LoginFrame extends JFrame implements ActionListener{
 				new CashierFrame();
 				dispose();
 			}
+		}else if(e.getSource()==buttonReset) {
+			fieldUsername.setText("");
+			fieldPassword.setText("");
 		}
 	}
 	

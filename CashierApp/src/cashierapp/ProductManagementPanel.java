@@ -14,6 +14,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.*;
+
 
 public class ProductManagementPanel extends JPanel implements ActionListener{
 	
@@ -85,6 +87,10 @@ public class ProductManagementPanel extends JPanel implements ActionListener{
 		centerPanel.add(fieldPrice);
 		centerPanel.add(labelStock);
 		centerPanel.add(fieldStock);
+		
+		((PlainDocument) fieldId.getDocument()).setDocumentFilter(new NumericDocumentFilter());
+        ((PlainDocument) fieldPrice.getDocument()).setDocumentFilter(new NumericDocumentFilter());
+        ((PlainDocument) fieldStock.getDocument()).setDocumentFilter(new NumericDocumentFilter());
 		
 		//BOTTOM PANEL
 		bottomPanel = new JPanel();

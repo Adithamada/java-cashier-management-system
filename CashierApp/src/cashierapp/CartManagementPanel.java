@@ -11,6 +11,7 @@ import cashierapp.data.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.PlainDocument;
 
 public class CartManagementPanel extends JPanel implements ActionListener {
 
@@ -82,6 +83,10 @@ public class CartManagementPanel extends JPanel implements ActionListener {
         panelCenter.add(labelPayment);
         panelCenter.add(fieldPayment);
 
+        ((PlainDocument)fieldId.getDocument()).setDocumentFilter(new NumericDocumentFilter());
+        ((PlainDocument)fieldAmount.getDocument()).setDocumentFilter(new NumericDocumentFilter());
+        ((PlainDocument)fieldPayment.getDocument()).setDocumentFilter(new NumericDocumentFilter());
+        
         // PANEL BOTTOM AKA BUTTON
         panelBottom = new JPanel();
         panelBottom.setBorder(new EmptyBorder(15, 10, 15, 15));
